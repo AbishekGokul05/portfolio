@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Resume dossier for Abishek Gokul, AI/ML Engineer." />
+    <title>Resume | Abishek Gokul</title>
+    <script src="js/theme.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bangers&family=Inter:wght@400;500;600;700;800;900&family=Noto+Serif+JP:wght@600;700;900&family=Permanent+Marker&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="css/themes.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/manga.css" />
+    <link rel="stylesheet" href="css/responsive.css" />
+</head>
+
+<body data-page="resume">
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <button class="scroll-shuriken" data-scroll-shuriken type="button" aria-label="Spin the shuriken"></button>
+
+    <header class="site-header">
+        <div class="container nav-container">
+            <a href="index.html" class="brand" aria-label="Abishek Gokul home" data-brand-name>ABISHEK_GOKUL</a>
+
+            <nav class="main-nav" aria-label="Main navigation">
+                <a href="index.html"><small>ホーム</small>Home</a>
+                <a href="experience.html"><small>経歴</small>Experience</a>
+                <a href="projects.html"><small>作品集</small>Projects</a>
+                <a href="resume.html" aria-current="page"><small>履歴書</small>Resume</a>
+            </nav>
+
+            <div class="nav-actions">
+                <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch theme"
+                    aria-pressed="false">
+                    <span>INK</span>
+                    <span>COLOR</span>
+                    <i aria-hidden="true"></i>
+                </button>
+
+                <button class="nav-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main id="main-content">
+        <section class="container page-hero" aria-labelledby="resume-title">
+            <p class="chapter-label">Character File</p>
+            <h1 id="resume-title" class="page-title">Resume</h1>
+            <p class="page-subtitle">
+                An in-page professional dossier — designed for reading, with the PDF available to download.
+            </p>
+        </section>
+
+        <nav class="resume-section-nav" aria-label="Resume sections">
+            <a href="#resume-summary">概要 <span>Summary</span></a>
+            <a href="#resume-experience">経歴 <span>Experience</span></a>
+            <a href="#resume-projects">作品 <span>Projects</span></a>
+            <a href="#resume-skills">技術 <span>Skills</span></a>
+            <a href="#resume-education">学歴 <span>Education</span></a>
+        </nav>
+
+        <section class="container resume-layout manga-reveal" aria-label="Resume dossier">
+            <aside class="manga-panel resume-dossier">
+                <span class="panel-number">DOSSIER 01</span>
+                <h2 data-profile-name>Abishek Gokul</h2>
+                <p data-profile-title>AI/ML Engineer</p>
+                <dl class="detail-list compact">
+                    <div>
+                        <dt>Status</dt>
+                        <dd data-status-text>Open to Opportunities</dd>
+                    </div>
+                    <div>
+                        <dt>Location</dt>
+                        <dd data-profile-location>Tenkasi, Tamil Nadu, India</dd>
+                    </div>
+                    <div>
+                        <dt>Email</dt>
+                        <dd><a href="mailto:abishekgokulv@gmail.com" data-profile-email>abishekgokulv@gmail.com</a>
+                        </dd>
+                    </div>
+                </dl>
+                <a class="button button-primary" href="assets/resume/resume.pdf" download>Download Resume</a>
+            </aside>
+
+            <article class="resume-content manga-panel" aria-label="Abishek Gokul resume details">
+                <header class="resume-content-header">
+                    <span class="panel-number">PROFILE / 01</span>
+                    <h2>AI Engineer</h2>
+                    <p>Hands-on AI engineer building reliable, production-ready systems from model logic to backend delivery.</p>
+                </header>
+
+                <section class="resume-block" aria-labelledby="resume-summary">
+                    <h3 id="resume-summary">Summary</h3>
+                    <p>AI Engineer with experience building multi-agent AI systems, RAG pipelines, and automation workflows. Skilled in Python and FastAPI, with practical exposure to LLMs, prompt engineering, computer vision, and object detection. Focused on dependable end-to-end AI solutions.</p>
+                </section>
+
+                <section class="resume-block" aria-labelledby="resume-experience">
+                    <h3 id="resume-experience">Experience</h3>
+                    <div class="resume-role">
+                        <div class="resume-role-heading">
+                            <div>
+                                <h4>AI/ML Developer</h4>
+                                <p>RDX Digital Technologies · Coimbatore</p>
+                            </div>
+                            <time datetime="2025-07">Jul 2025 — Apr 2026</time>
+                        </div>
+                        <ul>
+                            <li><strong>Blog Agent:</strong> built and handed off a production-ready seven-agent content automation pipeline for daily scheduling, event tracking, and company story generation.</li>
+                            <li><strong>Support platform:</strong> built a FastAPI backend for real-time field engineer tracking, ticket management, attendance, and machine/customer administration.</li>
+                            <li>Created n8n and WhatsApp support workflows with LLM classification, validation agents, ONNX image classification, FCM notifications, and scheduled jobs.</li>
+                            <li>Developed a YOLOv5/YOLOv8 fabric-defect MVP across eight categories, plus FastAPI and prompt-engineering work for textile products.</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section class="resume-block" aria-labelledby="resume-projects">
+                    <h3 id="resume-projects">Selected Projects</h3>
+                    <div class="resume-project-list">
+                        <div><h4>Automated Deep Research Assistant</h4><p>Multi-stage research pipeline with query enhancement, discovery, summarization, self-critique, async scraping, FAISS indexing, and citation-backed reports.</p></div>
+                        <div><h4>Simple Local RAG</h4><p>Local Python RAG system for document ingestion, chunking, vector search, and grounded LLM answers that reduce hallucinations.</p></div>
+                    </div>
+                </section>
+
+                <section class="resume-block" aria-labelledby="resume-skills">
+                    <h3 id="resume-skills">Technical Arsenal</h3>
+                    <div class="resume-skills">
+                        <p><strong>Core:</strong> Python, FastAPI, SQL, Git, n8n, APScheduler</p>
+                        <p><strong>AI/ML:</strong> RAG, FAISS, LangChain, Multi-Agent Systems, LLMs, Prompt Engineering, NLP, Computer Vision, YOLOv8</p>
+                        <p><strong>Tools:</strong> Claude, Gemini, Groq, OpenRouter, LiteLLM, Tavily, sentence-transformers, BeautifulSoup, Streamlit, Gradio</p>
+                    </div>
+                </section>
+
+                <section class="resume-block resume-education" aria-labelledby="resume-education">
+                    <h3 id="resume-education">Education</h3>
+                    <div><h4>B.Tech · Artificial Intelligence &amp; Machine Learning</h4><p>SNS College of Technology · Coimbatore, Tamil Nadu</p></div>
+                    <p class="education-meta">2021 — 2025 · CGPA 8.1 / 10</p>
+                </section>
+            </article>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <div class="brand footer-brand" data-footer-brand>ABISHEK_GOKUL</div>
+            <p class="footer-copy" data-footer-copy>(c) 2026 Abishek Gokul. Built like a chapter.</p>
+            <div class="footer-socials">
+                <a href="https://github.com/AbishekGokul05" target="_blank" rel="noreferrer"
+                    data-footer-github>GitHub</a>
+                <a href="https://www.linkedin.com/in/abishekgokul-v/" target="_blank" rel="noreferrer"
+                    data-footer-linkedin>LinkedIn</a>
+                <a href="mailto:abishekgokulv@gmail.com" data-footer-email>Email</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/data.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/animations.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,20 @@
+{
+  "name": "manga-style-portfolio",
+  "version": "1.0.0",
+  "description": "Static manga-style personal portfolio.",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "node scripts/build.js",
+    "preview": "node server.js --dir dist"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "portfolio",
+    "static-site"
+  ],
+  "license": "UNLICENSED"
+}
