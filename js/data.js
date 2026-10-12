@@ -55,6 +55,32 @@ const portfolioData = {
   ],
   projects: [
     {
+      id: "running-coach-ai",
+      title: "Running Coach AI",
+      description:
+        "A personal AI running coach that plans daily runs, logs workouts from chat, and answers progress questions from training history.",
+      problem:
+        "Strava logged the runs, but remembering the plan, deciding what to run next, and making sense of progress still took manual effort.",
+      approach:
+        "Use n8n to orchestrate chat workflows, Airtable to store running data, Supabase Vector Store to retrieve personal running history, and an LLM to generate context-aware coaching responses.",
+      image: "assets/images/projects/running_coach_ai_img.png",
+      technologies: [
+        "n8n",
+        "Airtable",
+        "Supabase Vector Store",
+        "LLMs",
+        "Workflow Automation",
+      ],
+      status: "COMPLETED",
+      deployment: "Personal workflow in use",
+      aiFlag: "AI agent with retrieved running context",
+      githubUrl: "",
+      liveUrl: "",
+      linkNote: "Personal workflow, not public yet",
+      featured: false,
+      category: "AI Automation",
+    },
+    {
       id: "axion",
       title: "Axion",
       description:

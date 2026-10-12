@@ -21,7 +21,27 @@ function createElement(tag, options = {}) {
     });
   }
 
+  if (tag === "img" && options.attributes?.src) {
+    configureResponsiveImage(element, options.attributes.src);
+  }
   return element;
+}
+
+function configureResponsiveImage(image, source, portrait = false) {
+  const asset = window.portfolioImages?.[source];
+  if (!asset) return;
+  image.width = asset.width;
+  image.height = asset.height;
+  image.decoding = "async";
+  image.sizes = portrait
+    ? "(max-width: 920px) 86vw, 430px"
+    : image.closest(".project-popup") ? "(max-width: 700px) 92vw, 520px" : "(max-width: 640px) 94vw, (max-width: 1120px) 46vw, 560px";
+  image.srcset = asset.variants.map(item => `${item.src} ${item.width}w`).join(", ");
+  image.src = asset.variants[1]?.src || asset.variants[0].src;
+  image.addEventListener("error", () => {
+    image.removeAttribute("srcset");
+    image.src = source;
+  }, { once: true });
 }
 
 function slugify(value) {
@@ -524,8 +544,7 @@ function addChapterProgress(page) {
 }
 
 function enhanceMangaDecorations(page) {
-  document.body.classList.add("manga-enhanced", "page-opening");
-  window.setTimeout(() => document.body.classList.remove("page-opening"), 760);
+  document.body.classList.add("manga-enhanced");
   addJapanesePrintDetails(page);
   addJapaneseMicroLabels();
   addChapterProgress(page);
@@ -564,11 +583,11 @@ function getProjectPopup() {
     return popup;
   }
 
-  popup = createElement("div", {
+  popup = createElement("dialog", {
     className: "project-popup",
     attributes: {
       "data-project-popup": "true",
-      "aria-hidden": "true",
+      "aria-labelledby": "project-popup-title",
     },
   });
   popup.tabIndex = -1;
@@ -579,23 +598,20 @@ function getProjectPopup() {
       type: "button",
       "aria-label": "Close project details",
       "data-project-popup-backdrop": "true",
+      tabindex: "-1",
     },
   });
 
   const windowPanel = createElement("section", {
     className: "project-popup-window manga-panel",
-    attributes: {
-      role: "dialog",
-      "aria-modal": "true",
-      "aria-labelledby": "project-popup-title",
-    },
+    attributes: { "aria-label": "Project case file" },
   });
 
   windowPanel.append(
     createElement("button", {
       className: "project-popup-close",
       text: "×",
-      attributes: { type: "button", "aria-label": "Close case file", "data-project-popup-close": "true" },
+      attributes: { type: "button", "aria-label": "Close case file", "data-project-popup-close": "true", autofocus: "true" },
     }),
     createElement("div", {
       className: "project-popup-media",
@@ -610,18 +626,34 @@ function getProjectPopup() {
   popup.append(backdrop, windowPanel);
   document.body.append(popup);
 
-  const hidePopup = () => {
+  const hidePopup = () => popup.close();
+  popup.addEventListener("close", () => {
     popup.classList.remove("is-open");
-    popup.setAttribute("aria-hidden", "true");
     document.body.classList.remove("project-popup-open");
-  };
+    popup.returnFocus?.focus({ preventScroll: true });
+    window.dispatchEvent(new Event("portfolio-overlaychange"));
+  });
 
   backdrop.addEventListener("click", hidePopup);
   windowPanel.querySelector("[data-project-popup-close]").addEventListener("click", hidePopup);
 
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
-      hidePopup();
+  popup.addEventListener("cancel", () => {
+    // Native dialog handles Escape, background inertness and focus containment.
+    popup.classList.remove("is-open");
+  });
+
+  popup.addEventListener("keydown", event => {
+    if (event.key !== "Tab") return;
+    const focusable = selectAll('button:not([disabled]):not([tabindex="-1"]), a[href]', popup)
+      .filter(node => node.getClientRects().length);
+    const first = focusable[0];
+    const last = focusable.at(-1);
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last?.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first?.focus();
     }
   });
 
@@ -692,9 +724,11 @@ function openProjectPopup(project) {
   );
 
   body.replaceChildren(buildProjectPopupContent(project));
+  popup.returnFocus = document.activeElement;
   popup.classList.add("is-open");
-  popup.setAttribute("aria-hidden", "false");
+  popup.showModal();
   document.body.classList.add("project-popup-open");
+  window.dispatchEvent(new Event("portfolio-overlaychange"));
 }
 
 function closeProjectPopup() {
@@ -704,9 +738,7 @@ function closeProjectPopup() {
     return;
   }
 
-  popup.classList.remove("is-open");
-  popup.setAttribute("aria-hidden", "true");
-  document.body.classList.remove("project-popup-open");
+  popup.close();
 }
 
 function renderSiteChrome() {
@@ -730,7 +762,8 @@ function renderSiteChrome() {
   });
 
   selectAll("[data-profile-image]").forEach((image) => {
-    image.src = profile.image;
+    configureResponsiveImage(image, profile.image, true);
+    image.fetchPriority = "high";
     image.alt = `Portrait of ${profile.name}`;
   });
 
@@ -779,12 +812,23 @@ function setupMobileMenu() {
     nav.classList.toggle("is-open", !expanded);
   });
 
-  nav.addEventListener("click", (event) => {
-    if (event.target.closest("a")) {
-      nav.classList.remove("is-open");
-      toggle.setAttribute("aria-expanded", "false");
+  const closeMenu = () => {
+    nav.classList.remove("is-open");
+    toggle.setAttribute("aria-expanded", "false");
+  };
+  nav.addEventListener("click", event => {
+    if (event.target.closest("a")) closeMenu();
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && nav.classList.contains("is-open")) {
+      closeMenu();
+      toggle.focus();
     }
   });
+  document.addEventListener("click", event => {
+    if (!event.target.closest(".nav-container")) closeMenu();
+  });
+  window.matchMedia("(min-width: 821px)").addEventListener("change", closeMenu);
 }
 
 function renderHomePage() {
@@ -831,6 +875,7 @@ function renderCurrentProject() {
       attributes: {
         src: project.image,
         alt: `${project.title} project preview`,
+        loading: "lazy",
       },
     }),
     createElement("span", {
@@ -969,6 +1014,7 @@ function renderProjectsPage() {
     const card = createElement("article", {
       className: `project-card manga-panel manga-reveal project-${slugify(project.category)}${project.featured ? " featured" : ""}`,
     });
+    card.dataset.technologies = JSON.stringify(project.technologies);
     const imageWrap = createElement("div", { className: "project-image-box" });
     imageWrap.append(
       createElement("img", {
@@ -1035,8 +1081,7 @@ function renderProjectsPage() {
       activeTechnology = activeTechnology === technology ? null : technology;
 
       selectAll(".project-card", grid).forEach((card) => {
-        const matches = !activeTechnology || selectAll("[data-project-tech]", card)
-          .some((tag) => tag.dataset.projectTech === activeTechnology);
+        const matches = !activeTechnology || JSON.parse(card.dataset.technologies).includes(activeTechnology);
         card.classList.toggle("is-tech-match", Boolean(activeTechnology && matches));
         card.classList.toggle("is-tech-muted", Boolean(activeTechnology && !matches));
       });

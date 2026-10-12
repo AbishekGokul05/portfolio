@@ -1,82 +1,71 @@
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
+const http = require('node:http');
+const fs = require('node:fs');
+const path = require('node:path');
+const crypto = require('node:crypto');
+const zlib = require('node:zlib');
+const { promisify } = require('node:util');
+const brotli = promisify(zlib.brotliCompress);
+const gzip = promisify(zlib.gzip);
 
 const args = process.argv.slice(2);
-const dirFlagIndex = args.indexOf('--dir');
-const requestedDir = dirFlagIndex !== -1 ? args[dirFlagIndex + 1] : process.env.SERVE_DIR;
-const publicDir = path.resolve(process.cwd(), requestedDir || '.');
+const dirIndex = args.indexOf('--dir');
+const publicDir = path.resolve(process.cwd(), (dirIndex !== -1 ? args[dirIndex + 1] : process.env.SERVE_DIR) || '.');
 const port = Number(process.env.PORT) || 3000;
-
 const mimeTypes = {
-  '.html': 'text/html; charset=utf-8',
-  '.css': 'text/css; charset=utf-8',
-  '.js': 'text/javascript; charset=utf-8',
-  '.json': 'application/json; charset=utf-8',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.gif': 'image/gif',
-  '.webp': 'image/webp',
-  '.svg': 'image/svg+xml',
-  '.ico': 'image/x-icon',
-  '.pdf': 'application/pdf',
-  '.txt': 'text/plain; charset=utf-8',
+  '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8',
+  '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp',
+  '.avif': 'image/avif', '.gif': 'image/gif', '.svg': 'image/svg+xml', '.ico': 'image/x-icon',
+  '.pdf': 'application/pdf', '.woff2': 'font/woff2', '.txt': 'text/plain; charset=utf-8',
 };
-
-function safeJoin(base, target) {
-  const targetPath = path.normalize(path.join(base, target));
-  return targetPath.startsWith(base) ? targetPath : null;
+const compressedCache = new Map();
+function fail(res, status, message) {
+  res.writeHead(status, { 'Content-Type': 'text/plain; charset=utf-8' });
+  res.end(message);
 }
 
-function sendFile(res, filePath) {
-  fs.readFile(filePath, (error, contents) => {
-    if (error) {
-      res.writeHead(error.code === 'ENOENT' ? 404 : 500, { 'Content-Type': 'text/plain; charset=utf-8' });
-      res.end(error.code === 'ENOENT' ? '404 Not Found' : '500 Internal Server Error');
-      return;
-    }
-
+const server = http.createServer(async (req, res) => {
+  if (!['GET', 'HEAD'].includes(req.method)) { res.setHeader('Allow', 'GET, HEAD'); return fail(res, 405, 'Method not allowed'); }
+  let pathname;
+  try { pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname); }
+  catch { return fail(res, 400, 'Bad request'); }
+  if (pathname === '/') pathname = '/index.html';
+  // Serve only public site files, not source, dependency, test or repository files.
+  if (!/^\/(?:index\.html|projects\.html|experience\.html|resume\.html|(?:css|js|assets)\/.+)$/.test(pathname)) return fail(res, 404, '404 Not Found');
+  const filePath = path.resolve(publicDir, '.' + pathname);
+  if (!filePath.startsWith(publicDir + path.sep)) return fail(res, 403, '403 Forbidden');
+  try {
+    const stat = await fs.promises.stat(filePath);
+    if (!stat.isFile()) return fail(res, 404, '404 Not Found');
     const ext = path.extname(filePath).toLowerCase();
-    res.writeHead(200, {
+    let contents = await fs.promises.readFile(filePath);
+    const etag = `W/"${crypto.createHash('sha256').update(contents).digest('hex').slice(0, 24)}"`;
+    const headers = {
       'Content-Type': mimeTypes[ext] || 'application/octet-stream',
-      'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=31536000, immutable',
-    });
-    res.end(contents);
-  });
-}
-
-const server = http.createServer((req, res) => {
-  const url = new URL(req.url, `http://${req.headers.host}`);
-  let pathname = decodeURIComponent(url.pathname);
-
-  if (pathname === '/') {
-    pathname = '/index.html';
-  }
-
-  const filePath = safeJoin(publicDir, pathname);
-  if (!filePath) {
-    res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
-    res.end('403 Forbidden');
-    return;
-  }
-
-  fs.stat(filePath, (error, stats) => {
-    if (!error && stats.isDirectory()) {
-      sendFile(res, path.join(filePath, 'index.html'));
-      return;
+      // Filenames are intentionally stable, so do not mark them immutable for a year.
+      'Cache-Control': 'public, max-age=0, must-revalidate',
+      'ETag': etag,
+      'Vary': 'Accept-Encoding',
+      'X-Content-Type-Options': 'nosniff',
+    };
+    if (req.headers['if-none-match'] === etag) { res.writeHead(304, headers); return res.end(); }
+    const encodingHeader = req.headers['accept-encoding'] || '';
+    const encodings = encodingHeader.split(',').map(item => item.trim().split(';')).filter(([, quality]) => !quality || Number(quality.trim().replace('q=', '')) > 0).map(([name]) => name);
+    const encoding = encodings.includes('br') ? 'br' : encodings.includes('gzip') ? 'gzip' : null;
+    if (encoding && contents.length > 1024 && ['.html', '.css', '.js', '.svg', '.json'].includes(ext)) {
+      const cacheKey = `${filePath}:${etag}:${encoding}`;
+      if (!compressedCache.has(cacheKey)) {
+        if (compressedCache.size >= 64) compressedCache.delete(compressedCache.keys().next().value);
+        compressedCache.set(cacheKey, encoding === 'br' ? await brotli(contents) : await gzip(contents));
+      }
+      contents = compressedCache.get(cacheKey);
+      headers['Content-Encoding'] = encoding;
     }
-
-    if (!error && stats.isFile()) {
-      sendFile(res, filePath);
-      return;
-    }
-
-    sendFile(res, path.join(publicDir, 'index.html'));
-  });
+    headers['Content-Length'] = contents.length;
+    res.writeHead(200, headers);
+    res.end(req.method === 'HEAD' ? undefined : contents);
+  } catch (error) {
+    fail(res, error.code === 'ENOENT' || error.code === 'ENOTDIR' ? 404 : 500, error.code === 'ENOENT' || error.code === 'ENOTDIR' ? '404 Not Found' : '500 Internal Server Error');
+  }
 });
-
-server.listen(port, () => {
-  console.log(`Portfolio site running at http://localhost:${port}`);
-  console.log(`Serving: ${publicDir}`);
-});
+server.listen(port, () => console.log(`Portfolio: http://localhost:${port}\nServing: ${publicDir}`));

@@ -8,15 +8,14 @@
         content="Abishek Gokul - AI/ML Engineer portfolio told through a manga-inspired developer journey." />
     <title>Abishek Gokul | AI/ML Engineer</title>
     <script src="js/theme.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Bangers&family=Inter:wght@400;500;600;700;800;900&family=Noto+Serif+JP:wght@600;700;900&family=Permanent+Marker&display=swap"
-        rel="stylesheet" />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="css/fonts.css" />
     <link rel="stylesheet" href="css/themes.css" />
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/manga.css" />
     <link rel="stylesheet" href="css/responsive.css" />
+    <link rel="stylesheet" href="css/enhancements.css" />
 </head>
 
 <body data-page="home">
@@ -70,19 +69,33 @@
 
             <figure class="portrait-board manga-reveal">
                 <div class="portrait-frame">
-                    <img src="assets/images/profile/profile_photo.png" alt="Portrait of Abishek Gokul"
-                        data-profile-image />
+                    <img src="assets/images/profile/profile_photo-800.webp" alt="Portrait of Abishek Gokul"
+                        srcset="assets/images/profile/profile_photo-480.webp 480w, assets/images/profile/profile_photo-800.webp 800w, assets/images/profile/profile_photo-1200.webp 1200w"
+                        sizes="(max-width: 920px) 86vw, 430px" width="1284" height="1225" fetchpriority="high" decoding="async" data-profile-image />
                 </div>
                 <figcaption class="sound-effect sound-effect-hero" aria-hidden="true">SHHHK</figcaption>
+                <div class="origami-study" data-origami-study>
+                    <div class="origami-viewport" data-scene-viewport role="group" aria-label="Interactive origami crane illustration">
+                        <img class="origami-fallback" src="assets/images/origami-crane.svg" alt="Folded paper crane" width="480" height="320" />
+                    </div>
+                    <div class="origami-toolbar">
+                        <span class="origami-label" aria-hidden="true">折り紙 / 01</span>
+                        <div class="origami-controls" hidden>
+                            <button type="button" data-scene-left aria-label="Rotate crane left">←</button>
+                            <button type="button" data-scene-reset aria-label="Reset crane view">↺</button>
+                            <button type="button" data-scene-right aria-label="Rotate crane right">→</button>
+                        </div>
+                    </div>
+                </div>
             </figure>
         </section>
 
         <section class="container quote-sequence manga-reveal" aria-labelledby="quote-heading">
             <h2 id="quote-heading" class="visually-hidden">Quote sequence</h2>
-            <article class="quote-panel manga-panel" data-quote-stage aria-live="polite">
+            <article class="quote-panel manga-panel" data-quote-stage aria-live="off">
                 <span class="panel-number" data-quote-number>QUOTE PANEL 01</span>
-                <p class="quote-text" data-quote-text></p>
-                <footer class="quote-author" data-quote-author></footer>
+                <p class="quote-text" data-quote-text>"Twenty years from now you will be more disappointed by the things that you didn't do than by the ones you did do. So throw off the bowlines. Sail away from the safe harbor. Catch the trade winds in your sails. Explore. Dream. Discover."</p>
+                <footer class="quote-author" data-quote-author>- H. Jackson Brown Jr.</footer>
                 <span class="ink-wipe" aria-hidden="true"></span>
             </article>
         </section>
@@ -160,9 +173,11 @@
         </div>
     </footer>
 
+    <script src="js/image-manifest.js"></script>
     <script src="js/data.js"></script>
     <script src="js/main.js"></script>
     <script src="js/animations.js"></script>
+    <script src="js/enhancements.js" defer></script>
 </body>
 
 </html>

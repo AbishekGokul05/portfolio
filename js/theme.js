@@ -1,6 +1,7 @@
 (function () {
   const storageKey = "portfolio-theme";
   const root = document.documentElement;
+  root.dataset.scripting = "enabled";
 
   function getStoredTheme() {
     try {

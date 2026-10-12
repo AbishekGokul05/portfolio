@@ -7,14 +7,29 @@
     "start": "node server.js",
     "dev": "node server.js",
     "build": "node scripts/build.js",
-    "preview": "node server.js --dir dist"
+    "preview": "node server.js --dir dist",
+    "images": "node scripts/optimize-images.cjs",
+    "fonts": "node scripts/fonts.cjs",
+    "bundle": "esbuild src/origami-scene.js --bundle --minify --format=esm --target=es2020 --outfile=js/origami.bundle.js --legal-comments=linked",
+    "test": "npm run build && playwright test",
+    "test:report": "playwright show-report"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "keywords": [
     "portfolio",
     "static-site"
   ],
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "dependencies": {
+    "three": "^0.186.0"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.63.0",
+    "esbuild": "^0.28.2",
+    "linkedom": "^0.18.13",
+    "sharp": "^0.35.4"
+  }
 }
